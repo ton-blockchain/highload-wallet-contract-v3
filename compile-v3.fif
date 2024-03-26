@@ -1,0 +1,45 @@
+"contracts/highload-wallet-v3.fif" include
+
+
+."⏳ Compiling..." cr cr
+
+
+// convert code cell to hex and base64
+2 boc+>B            =: code-bytes
+code-bytes B>x      =: code-hex
+code-bytes B>base64 =: code-base64
+
+
+."✅ Compiled successfully! Cell BOC hex result:" cr cr
+
+code-hex type cr cr
+
+."⏳ Creating json output..." cr cr
+
+
+// create json template
+$<<"""
+{
+  "hex": "",
+  "base64": ""
+}
+"""
+12 $| 16 $|
+=: json-template-part3
+=: json-template-part2
+=: json-template-part1
+
+
+// create final json
+json-template-part1
+code-hex
+json-template-part2
+code-base64
+json-template-part3
+$+ $+ $+ $+ =: code-json
+
+
+// write json to file
+code-json $>B "build/HighloadWalletV3.compiled.json" B>file
+
+."✅ Wrote compilation artifact to build/HighloadWalletV3.compiled.json" cr

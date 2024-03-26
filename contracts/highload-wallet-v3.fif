@@ -1,0 +1,114 @@
+/*
+  highload-wallet-v3 – open-source optimized highload wallet for tvm-based blockchains
+
+  Copyright (C) 2023 Continuation Team
+
+  This file is part of highload-wallet-v3.
+
+  highload-wallet-v3 is free software: you can redistribute it and/or modify it under the terms
+  of the GNU Lesser General Public License as published by the Free Software Foundation,
+  either version 3 of the License, or (at your option) any later version.
+
+  highload-wallet-v3 is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License along with highload-wallet-v3.
+  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+"Asm.fif" include
+
+{ $>B crc16 0xffff and 0x10000 or } : $>method_id
+
+<{
+    SETCP0 DUP IFNOTRET                                        // (msg_body or *stack) selector
+    DUP ISPOS                                                  // (msg_body or *stack) selector f
+    IFJMP:<{                                                   // *stack selector
+        DUP                                                    // *stack selector selector
+        "get_public_key" $>method_id EQINT                     // *stack selector f
+        IFJMP:<{                                               // *stack selector
+            c4 PUSH CTOS 256 PLDU                              // *stack selector pubkey
+            // return pubkey
+            1 RETARGS
+        }>
+        "get_subwallet_id" $>method_id EQINT                   // *stack f
+        IFJMP:<{                                               // *stack
+            c4 PUSH CTOS 256 LDU                               // *stack pubkey
+            32 PLDU                                            // *stack pubkey subwallet_id
+            // return subwallet_id
+            1 RETARGS
+        }>
+        // TODO: get_timeout, get_last_cleaned, processed?
+        0x7ff THROW
+    }>
+    // fail unless recv_external (from wallet-v3)
+    INC 32 THROWIF                                             // msg_body
+
+    // parse msg_body
+    LDREF 9 PUSHPOW2 LDSLICEX ENDS OVER HASHCU                 // msg_inner sign hash
+
+    // parse storage
+    c4 PUSH                                                    // msg_inner sign hash c4
+    CTOS 256 LDU 32 LDU LDDICT LDDICT 40 PLDU                  // msg_inner sign hash pubkey subwallet_id old_queries queries last_cleaned
+
+    // check and shift query dicts
+    DUP NOW 128 SUBCONST LESS                                  // msg_inner sign hash pubkey subwallet_id old_queries queries last_cleaned f
+    IF:<{                                                      // msg_inner sign hash pubkey subwallet_id old_queries queries last_cleaned
+        1 2 BLKDROP2                                           // msg_inner sign hash pubkey subwallet_id queries->old_queries last_cleaned
+        NOW 8 PUSHPOW2 SUB LESS                                // msg_inner sign hash pubkey subwallet_id old_queries f
+        IF:<{                                                  // msg_inner sign hash pubkey subwallet_id old_queries
+            DROP                                               // msg_inner sign hash pubkey subwallet_id
+            NULL                                               // msg_inner sign hash pubkey subwallet_id old_queries
+        }>
+        NULL NOW                                               // msg_inner sign hash pubkey subwallet_id old_queries queries last_cleaned
+    }>
+    
+    // check sign
+    s7 s5 s6 XCHG3                                             // old_queries last_cleaned queries pubkey subwallet_id msg_inner hash sign
+    s4 PUSH                                                    // old_queries last_cleaned queries pubkey subwallet_id msg_inner hash sign pubkey
+    CHKSIGNU 33 THROWIFNOT                                     // old_queries last_cleaned queries pubkey subwallet_id msg_inner
+    
+    // parse msg_inner
+    CTOS LDREF 14 LDU 10 LDU 40 LDU 32 LDU ENDS                // old_queries last_cleaned queries pubkey subwallet_id actions shift bit_number created_at msg_subwallet_id
+
+    // check subwallet_id
+    s5 PUSH EQUAL 34 THROWIFNOT                                // old_queries last_cleaned queries pubkey subwallet_id actions shift bit_number created_at
+
+    // check created_at
+    NOW 2DUP 128 SUBCONST MAX MIN EQUAL 35 THROWIFNOT          // old_queries last_cleaned queries pubkey subwallet_id actions shift bit_number
+
+    // check query_id in old_queries
+    s1 s7 PUSH2 14 INT DICTUGETREF                             // old_queries last_cleaned queries pubkey subwallet_id actions shift bit_number (value_cell -1 or 0)
+    IF:<{                                                      // old_queries last_cleaned queries pubkey subwallet_id actions shift bit_number value_cell
+        CTOS OVER SDSKIPFIRST SDFIRST 36 THROWIF               // old_queries last_cleaned queries pubkey subwallet_id actions shift bit_number
+    }>
+
+    // check query_id in queries
+    // and write, if not found
+    s1 s5 PUSH2 14 INT DICTUGETREF                             // old_queries last_cleaned queries pubkey subwallet_id actions shift bit_number (value_cell -1 or 0)
+    IF:<{                                                      // old_queries last_cleaned queries pubkey subwallet_id actions shift bit_number value_cell
+        CTOS SWAP LDSLICEX                                     // old_queries last_cleaned queries pubkey subwallet_id actions shift value' value''
+        b{0} SDBEGINS                                          // old_queries last_cleaned queries pubkey subwallet_id actions shift value' value''
+        SWAP                                                   // old_queries last_cleaned queries pubkey subwallet_id actions shift value'' value'
+        NEWC STSLICE STONE STSLICE                             // old_queries last_cleaned queries pubkey subwallet_id actions shift value_builder
+    }>ELSE<{                                                   // old_queries last_cleaned queries pubkey subwallet_id actions shift bit_number
+        NEWC OVER STZEROES STONE                               // old_queries last_cleaned queries pubkey subwallet_id actions shift bit_number value_builder
+        10 PUSHPOW2DEC ROT SUB DEC STZEROES                    // old_queries last_cleaned queries pubkey subwallet_id actions shift value_builder
+    }>
+
+    ACCEPT
+    
+    ENDC                                                       // old_queries last_cleaned queries pubkey subwallet_id actions shift value_cell
+    s0 s1 s5 XCHG3                                             // old_queries last_cleaned actions pubkey subwallet_id value_cell shift queries
+    14 INT DICTUSETREF                                         // old_queries last_cleaned actions pubkey subwallet_id queries
+    
+    // build storage
+    s3 s5 XCHG                                                 // actions last_cleaned old_queries pubkey subwallet_id queries
+    s3 s1 s3 XCHG3                                             // actions last_cleaned queries old_queries subwallet_id pubkey
+    NEWC 256 STU 32 STU STDICT STDICT 40 STU ENDC              // actions c4
+    c4 POP                                                     // actions
+
+    // write actions
+    c5 POP
+}>c

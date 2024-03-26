@@ -1,0 +1,43 @@
+/*
+  highload-wallet-v3 – open-source optimized highload wallet for tvm-based blockchains
+
+  Copyright (C) 2023 Continuation Team
+
+  This file is part of highload-wallet-v3.
+
+  highload-wallet-v3 is free software: you can redistribute it and/or modify it under the terms
+  of the GNU Lesser General Public License as published by the Free Software Foundation,
+  either version 3 of the License, or (at your option) any later version.
+
+  highload-wallet-v3 is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License along with highload-wallet-v3.
+  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+
+storage$_ public_key:bits256 subwallet_id:uint32 old_queries:(HashmapE 14 ^Cell)
+          queries:(HashmapE 14 ^Cell) last_cleaned:uint40
+          = Storage;
+
+_ shift:uint14 bit_number:(## 10) { bit_number >= 0 } { bit_number < 1023 } = QueryId;
+
+_ QueryId created_at:uint40 subwallet_id:uint32 = ReplayProtectionId;
+
+// highload v3
+_ {n:#} ReplayProtectionId actions:^(OutList n) { n <= 255 } = MsgInner n;
+
+msg_body$_ {n:#} sign:bits512 ^(MsgInner n) = ExtInMsgBody n;
+
+// highload v3s
+
+// crc32('internal_transfer n:# query_id:uint64 actions:^OutList n = InternalMsgBody n') = ae42e5a4
+
+internal_transfer#ae42e5a4 {n:#} query_id:uint64 actions:^(OutList n) = InternalMsgBody n;
+
+_ {n:#} message:^Cell mode:uint8 ReplayProtectionId = MsgInner;
+
+msg_body$_ {n:#} sign:bits512 ^(MsgInner) = ExternalInMsgBody;
+
