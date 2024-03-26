@@ -78,6 +78,7 @@ export class HighloadWalletV3 implements Contract {
             query_id: number | QueryIterator,
             createdAt: number,
             subwalletId: number,
+            timeout: number,
         }
     ){
         let messageCell: Cell;
@@ -98,6 +99,7 @@ export class HighloadWalletV3 implements Contract {
                             .storeUint(Number(opts.query_id), 24)
                             .storeUint(opts.createdAt, TIMESTAMP_SIZE)
                             .storeUint(opts.subwalletId, 32)
+                            .storeUint(opts.timeout, TIMEOUT_SIZE)
                             .endCell();
 
         await provider.external(
@@ -107,7 +109,7 @@ export class HighloadWalletV3 implements Contract {
            .endCell()
         );
     }
-    async sendBatch (provider: ContractProvider, secretKey: Buffer, messages: OutActionSendMsg[], subwallet: number, query_id: QueryIterator, createdAt?: number, value: bigint = 0n) {
+    async sendBatch (provider: ContractProvider, secretKey: Buffer, messages: OutActionSendMsg[], subwallet: number, query_id: QueryIterator, timeout: number, createdAt?: number, value: bigint = 0n) {
         if(createdAt == undefined) {
             createdAt = Math.floor(Date.now() / 1000);
         }
@@ -119,7 +121,8 @@ export class HighloadWalletV3 implements Contract {
             mode: value > 0n ? SendMode.PAY_GAS_SEPARATELY : SendMode.CARRY_ALL_REMAINING_BALANCE,
             query_id: query_id,
             createdAt: createdAt,
-            subwalletId: subwallet
+            subwalletId: subwallet,
+            timeout: timeout
         });
     }
 

@@ -14,6 +14,7 @@ const int error::invalid_subwallet_id = 34;
 const int error::invalid_created_at = 35;
 const int error::already_execured = 36;
 const int error::invalid_message_to_send = 37;
+const int error::invalid_timeout = 38;
 
 const int KEY_SIZE = 14;
 const int SIGNATURE_SIZE = 512;
@@ -84,9 +85,11 @@ const int SHIFT_SIZE = 10; ;; 2^10 = 1024
     int bit_number = msg_inner_slice~load_uint(SHIFT_SIZE);
     int created_at = msg_inner_slice~load_uint(TIMESTAMP_SIZE);
     int _subwallet_id = msg_inner_slice~load_uint(SUBWALET_ID_SIZE);
+    int _timeout  = msg_inner_slice~load_uint(TIMEOUT_SIZE);
     msg_inner_slice.end_parse();
 
     throw_unless(error::invalid_subwallet_id, _subwallet_id == subwallet_id);
+    throw_unless(error::invalid_timeout, _timeout == timeout);
 
     throw_unless(error::invalid_created_at, created_at == min(now(), max(created_at, now() - timeout)));
 
