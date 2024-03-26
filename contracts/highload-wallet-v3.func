@@ -21,7 +21,7 @@ const int op::internal_transfer = 0xae42e5a4;
   int flags = in_msg_full_slice~load_uint(4);
   slice sender = in_msg_full_slice~load_msg_addr();
 
-  if ((~ sender.equal_slice_bits(my_address())) | (flags & 1)) {
+  if ((~ sender.equal_slices_bits(my_address())) | (flags & 1)) {
     return ();
   }
 
