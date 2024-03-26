@@ -95,7 +95,7 @@ const int BIT_NUMBER_SIZE = 10; ;; 2^10 = 1024
     throw_unless(error::invalid_subwallet_id, _subwallet_id == subwallet_id);
     throw_unless(error::invalid_timeout, _timeout == timeout);
 
-    throw_unless(error::invalid_created_at, created_at >= now() - timeout);
+    throw_unless(error::invalid_created_at, created_at > now() - timeout);
     throw_unless(error::invalid_created_at, created_at <= now());
 
     (cell value, int found) = old_queries.udict_get_ref?(KEY_SIZE, shift);
