@@ -24,7 +24,7 @@ const int TIMESTAMP_SIZE = 64;
 const int TIMEOUT_SIZE = 22; ;; 2^22 / 60 / 60 / 24 - up to ~48 days
 
 const int CELL_BITS_SIZE = 1023;
-const int SHIFT_SIZE = 10; ;; 2^10 = 1024
+const int BIT_NUMBER_SIZE = 10; ;; 2^10 = 1024
 
 () recv_internal(cell in_msg_full, slice in_msg_body) {
     (int body_bits, int body_refs) = in_msg_body.slice_bits_refs();
@@ -82,7 +82,7 @@ const int SHIFT_SIZE = 10; ;; 2^10 = 1024
     cell message_to_send = msg_inner_slice~load_ref();
     int send_mode = msg_inner_slice~load_uint(8);
     int shift = msg_inner_slice~load_uint(KEY_SIZE);
-    int bit_number = msg_inner_slice~load_uint(SHIFT_SIZE);
+    int bit_number = msg_inner_slice~load_uint(BIT_NUMBER_SIZE);
     int created_at = msg_inner_slice~load_uint(TIMESTAMP_SIZE);
     int _subwallet_id = msg_inner_slice~load_uint(SUBWALET_ID_SIZE);
     int _timeout  = msg_inner_slice~load_uint(TIMEOUT_SIZE);
@@ -197,7 +197,7 @@ int get_timeout() method_id {
 }
 
 int processed?(int query_id) method_id {
-    int shift = query_id >> SHIFT_SIZE;
+    int shift = query_id >> BIT_NUMBER_SIZE;
     int bit_number = query_id & CELL_BITS_SIZE;
 
     slice data_slice = get_data().begin_parse();
