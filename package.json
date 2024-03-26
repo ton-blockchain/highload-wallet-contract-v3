@@ -3,8 +3,7 @@
     "version": "0.0.1",
     "scripts": {
         "start": "blueprint run",
-        "build-fift": "fift compile-v3.fif && fift compile-v3s.fif",
-        "build-func": "blueprint build --all",
+        "build": "blueprint build --all",
         "test": "jest"
     },
     "devDependencies": {
