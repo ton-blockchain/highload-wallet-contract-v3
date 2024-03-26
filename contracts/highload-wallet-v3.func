@@ -12,7 +12,7 @@ const int op::internal_transfer = 0xae42e5a4;
 const int error::invalid_signature = 33;
 const int error::invalid_subwallet_id = 34;
 const int error::invalid_created_at = 35;
-const int error::already_execured = 36;
+const int error::already_executed = 36;
 const int error::invalid_message_to_send = 37;
 const int error::invalid_timeout = 38;
 
@@ -102,7 +102,7 @@ const int BIT_NUMBER_SIZE = 10; ;; 2^10 = 1024
     if (found) {
         slice value_slice = value.begin_parse();
         value_slice~skip_bits(bit_number);
-        throw_if(error::already_execured, value_slice.preload_int(1));
+        throw_if(error::already_executed, value_slice.preload_int(1));
     }
 
     (cell value, int found) = queries.udict_get_ref?(KEY_SIZE, shift);
@@ -110,7 +110,7 @@ const int BIT_NUMBER_SIZE = 10; ;; 2^10 = 1024
     if (found) {
         slice value_slice = value.begin_parse();
         (slice tail, slice head) = value_slice.load_bits(bit_number);
-        throw_if(error::already_execured, tail~load_int(1));
+        throw_if(error::already_executed, tail~load_int(1));
         new_value = begin_cell().store_slice(head).store_true().store_slice(tail);
     } else {
         new_value = begin_cell().store_zeroes(bit_number).store_true().store_zeroes(CELL_BITS_SIZE - bit_number - 1);
