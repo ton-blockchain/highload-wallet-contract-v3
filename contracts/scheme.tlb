@@ -1,10 +1,8 @@
 storage$_ public_key:bits256 subwallet_id:uint32 old_queries:(HashmapE 14 ^Cell)
-          queries:(HashmapE 14 ^Cell) last_cleaned:uint40
+          queries:(HashmapE 14 ^Cell) last_clean_time:uint40 timeout:uint16
           = Storage;
 
 _ shift:uint14 bit_number:(## 10) { bit_number >= 0 } { bit_number < 1023 } = QueryId;
-
-_ QueryId created_at:uint40 subwallet_id:uint32 = ReplayProtectionId;
 
 // highload v3
 
@@ -12,7 +10,7 @@ _ QueryId created_at:uint40 subwallet_id:uint32 = ReplayProtectionId;
 
 internal_transfer#ae42e5a4 {n:#} query_id:uint64 actions:^(OutList n) = InternalMsgBody n;
 
-_ {n:#} message:^Cell mode:uint8 ReplayProtectionId = MsgInner;
+_ {n:#} message_to_send:^Cell send_mode:uint8 queryId:QueryId created_at:uint40 subwallet_id:uint32 = MsgInner;
 
-msg_body$_ {n:#} sign:bits512 ^(MsgInner) = ExternalInMsgBody;
+msg_body$_ {n:#} signature:bits512 ^(MsgInner) = ExternalInMsgBody;
 
