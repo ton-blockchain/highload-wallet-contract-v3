@@ -206,7 +206,7 @@ export class HighloadWalletV3 implements Contract {
     }
 
     async getLastCleaned(provider: ContractProvider): Promise<number> {
-        const res = (await provider.get('get_last_cleaned', [])).stack;
+        const res = (await provider.get('get_last_clean_time', [])).stack;
         return res.readNumber();
     }
 

@@ -91,7 +91,8 @@ const int SHIFT_SIZE = 10; ;; 2^10 = 1024
     throw_unless(error::invalid_subwallet_id, _subwallet_id == subwallet_id);
     throw_unless(error::invalid_timeout, _timeout == timeout);
 
-    throw_unless(error::invalid_created_at, created_at == min(now(), max(created_at, now() - timeout)));
+    throw_unless(error::invalid_created_at, created_at >= now() - timeout);
+    throw_unless(error::invalid_created_at, created_at <= now());
 
     (cell value, int found) = old_queries.udict_get_ref?(KEY_SIZE, shift);
     if (found) {
@@ -183,7 +184,7 @@ int get_subwallet_id() method_id {
     return data_slice.preload_uint(SUBWALET_ID_SIZE);
 }
 
-int get_last_cleaned() method_id {
+int get_last_clean_time() method_id {
     slice data_slice = get_data().begin_parse();
     data_slice~skip_bits(PUBLIC_KEY_SIZE + SUBWALET_ID_SIZE + 1 + 1); ;; skip: public_key, subwallet_id, old_queried, queries
     return data_slice.preload_uint(TIMESTAMP_SIZE);
