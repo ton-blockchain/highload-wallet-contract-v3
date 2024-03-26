@@ -1,4 +1,4 @@
-"contracts/highload-wallet-v3s.fif" include
+"contracts/highload-wallet-v3.fif" include
 
 
 ."⏳ Compiling..." cr cr
@@ -40,6 +40,6 @@ $+ $+ $+ $+ =: code-json
 
 
 // write json to file
-code-json $>B "build/HighloadWalletV3S.compiled.json" B>file
+code-json $>B "build/HighloadWalletV3.compiled.json" B>file
 
-."✅ Wrote compilation artifact to build/HighloadWalletV3S.compiled.json" cr
+."✅ Wrote compilation artifact to build/HighloadWalletV3.compiled.json" cr

@@ -15,21 +15,21 @@ import {
     internal as internal_relaxed,
     OutActionSendMsg
 } from '@ton/core';
-// import { hex as CodeHex } from '../build/HighloadWalletV3S.compiled.json';
+// import { hex as CodeHex } from '../build/HighloadWalletV3.compiled.json';
 import { sign } from "ton-crypto";
 import {OP} from "../tests/imports/const";
 import { QueryIterator, maxQueryId } from "./QueryIterator";
 
-// export const HighloadWalletV3SCode = Cell.fromBoc(Buffer.from(CodeHex, "hex"))[0]
+// export const HighloadWalletV3Code = Cell.fromBoc(Buffer.from(CodeHex, "hex"))[0]
 
-export type HighloadWalletV3SConfig = {
+export type HighloadWalletV3Config = {
     publicKey: Buffer,
     subwalletId: number,
     timeout: number
 };
 
 
-export function highloadWalletV3SConfigToCell(config: HighloadWalletV3SConfig): Cell {
+export function highloadWalletV3ConfigToCell(config: HighloadWalletV3Config): Cell {
     return beginCell()
           .storeBuffer(config.publicKey)
           .storeUint(config.subwalletId, 32)
@@ -38,20 +38,20 @@ export function highloadWalletV3SConfigToCell(config: HighloadWalletV3SConfig): 
           .endCell();
 }
 
-export class HighloadWalletV3S implements Contract {
+export class HighloadWalletV3 implements Contract {
 
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
 
     static createFromAddress(address: Address) {
-        return new HighloadWalletV3S(address);
+        return new HighloadWalletV3(address);
     }
 
 
-    static createFromConfig(config: HighloadWalletV3SConfig, code: Cell, workchain = 0) {
-        const data = highloadWalletV3SConfigToCell(config);
+    static createFromConfig(config: HighloadWalletV3Config, code: Cell, workchain = 0) {
+        const data = highloadWalletV3ConfigToCell(config);
         const init = { code, data };
-        return new HighloadWalletV3S(contractAddress(workchain, init), init);
+        return new HighloadWalletV3(contractAddress(workchain, init), init);
     }
 
 
@@ -150,7 +150,7 @@ export class HighloadWalletV3S implements Contract {
         return internal_relaxed({
             to: this.address,
             value: opts.value,
-            body: HighloadWalletV3S.createInternalTransferBody(opts)
+            body: HighloadWalletV3.createInternalTransferBody(opts)
         });
         /*beginCell()
             .storeUint(0x10, 6)

@@ -7,11 +7,6 @@ _ shift:uint14 bit_number:(## 10) { bit_number >= 0 } { bit_number < 1023 } = Qu
 _ QueryId created_at:uint40 subwallet_id:uint32 = ReplayProtectionId;
 
 // highload v3
-_ {n:#} ReplayProtectionId actions:^(OutList n) { n <= 255 } = MsgInner n;
-
-msg_body$_ {n:#} sign:bits512 ^(MsgInner n) = ExtInMsgBody n;
-
-// highload v3s
 
 // crc32('internal_transfer n:# query_id:uint64 actions:^OutList n = InternalMsgBody n') = ae42e5a4
 
