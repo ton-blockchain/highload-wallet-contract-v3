@@ -19,6 +19,7 @@ import {
 import { sign } from "ton-crypto";
 import {OP} from "../tests/imports/const";
 import { QueryIterator, maxQueryId } from "./QueryIterator";
+import exp from "node:constants";
 
 // export const HighloadWalletV3Code = Cell.fromBoc(Buffer.from(CodeHex, "hex"))[0]
 
@@ -29,12 +30,15 @@ export type HighloadWalletV3Config = {
 };
 
 
+export const TIMESTAMP_SIZE = 64;
+export const TIMEOUT_SIZE = 22;
+
 export function highloadWalletV3ConfigToCell(config: HighloadWalletV3Config): Cell {
     return beginCell()
           .storeBuffer(config.publicKey)
           .storeUint(config.subwalletId, 32)
-          .storeUint(0, 1 + 1 + 40)
-          .storeUint(config.timeout, 16)
+          .storeUint(0, 1 + 1 + TIMESTAMP_SIZE)
+          .storeUint(config.timeout, TIMEOUT_SIZE)
           .endCell();
 }
 
@@ -92,7 +96,7 @@ export class HighloadWalletV3 implements Contract {
                             .storeRef(messageCell)
                             .storeUint(opts.mode, 8)
                             .storeUint(Number(opts.query_id), 24)
-                            .storeUint(opts.createdAt, 40)
+                            .storeUint(opts.createdAt, TIMESTAMP_SIZE)
                             .storeUint(opts.subwalletId, 32)
                             .endCell();
 

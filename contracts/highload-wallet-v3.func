@@ -19,8 +19,8 @@ const int KEY_SIZE = 14;
 const int SIGNATURE_SIZE = 512;
 const int PUBLIC_KEY_SIZE = 256;
 const int SUBWALET_ID_SIZE = 32;
-const int TIMESTAMP_SIZE = 40;
-const int TIMEOUT_SIZE = 16;
+const int TIMESTAMP_SIZE = 64;
+const int TIMEOUT_SIZE = 22; ;; 2^22 / 60 / 60 / 24 - up to ~48 days
 
 const int CELL_BITS_SIZE = 1023;
 const int SHIFT_SIZE = 10; ;; 2^10 = 1024

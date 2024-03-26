@@ -1,6 +1,6 @@
 import { Blockchain, EmulationError, SandboxContract, createShardAccount, internal } from '@ton/sandbox';
 import { beginCell, Cell, SendMode, toNano, Address, internal as internal_relaxed, Dictionary, BitString, OutActionSendMsg } from '@ton/core';
-import { HighloadWalletV3 } from '../wrappers/HighloadWalletV3';
+import {HighloadWalletV3, TIMEOUT_SIZE, TIMESTAMP_SIZE} from '../wrappers/HighloadWalletV3';
 import '@ton/test-utils';
 import { getSecureRandomBytes, KeyPair, keyPairFromSeed } from "ton-crypto";
 import { randomBytes } from "crypto";
@@ -404,13 +404,13 @@ describe('HighloadWalletV3', () => {
         const walletState = await getContractData(highloadWalletV3.address);
         const ws   = walletState.beginParse();
         const head = ws.loadBits(256 + 32); // pubkey + subwallet
-        const tail = ws.skip(2 + 40).loadBits(16);
+        const tail = ws.skip(2 + TIMESTAMP_SIZE).loadBits(TIMEOUT_SIZE);
 
         const newState = beginCell()
                           .storeBits(head)
                           .storeDict(null)
                           .storeDict(newQueries)
-                          .storeUint(2000, 40) // Make sure both dicts pass last_cleaned check
+                          .storeUint(2000, TIMESTAMP_SIZE) // Make sure both dicts pass last_cleaned check
                           .storeBits(tail)
                         .endCell();
 
