@@ -26,7 +26,7 @@ const int TIMEOUT_SIZE = 22; ;; 2^22 / 60 / 60 / 24 - up to ~48 days
 const int CELL_BITS_SIZE = 1023;
 const int BIT_NUMBER_SIZE = 10; ;; 2^10 = 1024
 
-() recv_internal(cell in_msg_full, slice in_msg_body) {
+() recv_internal(cell in_msg_full, slice in_msg_body) impure {
     (int body_bits, int body_refs) = in_msg_body.slice_bits_refs();
     ifnot ((body_refs == 1) & (body_bits == MSG_OP_SIZE + MSG_QUERY_ID_SIZE)) {
         return (); ;; just accept TONs
@@ -34,10 +34,14 @@ const int BIT_NUMBER_SIZE = 10; ;; 2^10 = 1024
 
     slice in_msg_full_slice = in_msg_full.begin_parse();
     int msg_flags = in_msg_full_slice~load_msg_flags();
+    if (is_bounced(msg_flags)) {
+        return ();
+    }
+
     slice sender_address = in_msg_full_slice~load_msg_addr();
 
-    ;; not from myself or bounced
-    if ((~ sender_address.equal_slices_bits(my_address())) | is_bounced(msg_flags)) {
+    ;; not from myself
+    if (~ sender_address.equal_slices_bits(my_address())) {
         return ();  ;; just accept TONs
     }
 
@@ -53,7 +57,7 @@ const int BIT_NUMBER_SIZE = 10; ;; 2^10 = 1024
     }
 }
 
-() recv_external(slice msg_body) {
+() recv_external(slice msg_body) impure {
     cell msg_inner = msg_body~load_ref();
     slice signature = msg_body~load_bits(SIGNATURE_SIZE);
     msg_body.end_parse();
