@@ -157,7 +157,8 @@ const int BIT_NUMBER_SIZE = 10; ;; 2^10 = 1024
     if (is_bounced(msg_flags)) {
         return ();
     }
-    message_slice~load_msg_addr(); ;; src
+    slice message_source_adrress = message_slice~load_msg_addr(); ;; src
+    throw_unless(error::invalid_message_to_send, is_address_none(message_source_adrress));
     message_slice~load_msg_addr(); ;; dest
     message_slice~load_coins(); ;; value.coins
     message_slice = message_slice.skip_dict(); ;; value.other extra-currencies
