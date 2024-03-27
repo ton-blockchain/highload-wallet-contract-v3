@@ -10,7 +10,7 @@ _ shift:uint14 bit_number:(## 10) { bit_number >= 0 } { bit_number < 1023 } = Qu
 
 internal_transfer#ae42e5a4 {n:#} query_id:uint64 actions:^(OutList n) = InternalMsgBody n;
 
-_ {n:#} message_to_send:^Cell send_mode:uint8 query_id:QueryId created_at:uint64 subwallet_id:uint32 timeout:uint22 = MsgInner;
+_ {n:#}  subwallet_id:uint32 message_to_send:^Cell send_mode:uint8 query_id:QueryId created_at:uint64 timeout:uint22 = MsgInner;
 
 msg_body$_ {n:#} signature:bits512 ^(MsgInner) = ExternalInMsgBody;
 
