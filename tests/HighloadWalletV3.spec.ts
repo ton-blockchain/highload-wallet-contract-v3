@@ -460,7 +460,7 @@ describe('HighloadWalletV3', () => {
         const testBody   = beginCell().storeUint(getRandomInt(0, 1000000), 32).endCell();
 
         const rndShift   = getRandomInt(0, 16383);
-        const rndBitNum  = getRandomInt(0, 1022);
+        const rndBitNum  = 1022;
 
         const queryId = (rndShift << 10) + rndBitNum;
 
@@ -485,6 +485,33 @@ describe('HighloadWalletV3', () => {
             value: toNano('123'),
             body: testBody
         });
+
+        expect(await highloadWalletV3.getProcessed(queryId)).toBe(true);
+
+        // second transfer rejected
+
+        let fail = false;
+        try {
+            await highloadWalletV3.sendExternalMessage(
+                keyPair.secretKey,
+                {
+                    query_id: queryId,
+                    message: internal_relaxed({
+                        to: testAddr,
+                        bounce: false,
+                        value: toNano('123'),
+                        body: testBody
+                    }),
+                    createdAt: 1000,
+                    mode: SendMode.PAY_GAS_SEPARATELY,
+                    subwalletId: SUBWALLET_ID,
+                    timeout: DEFAULT_TIMEOUT
+                });
+        } catch (e) {
+            fail = true;
+        }
+
+        expect(fail).toBe(true);
     });
     it('should ignore set_code action', async () => {
         const mockCode   = beginCell().storeUint(getRandomInt(0, 1000000), 32).endCell();
