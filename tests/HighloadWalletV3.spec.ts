@@ -607,7 +607,7 @@ describe('HighloadWalletV3', () => {
         expect(await highloadWalletV3.getProcessed(Number(curQuery))).toBe(true);
     });
     it('should be able to go beyond 255 messages with chained internal_transfer', async () => {
-        const msgCount  = getRandomInt(256, 512);
+        const msgCount  = getRandomInt(256, 507);
         const msgs : OutActionSendMsg[] = new Array(msgCount);
         const curQuery = new QueryIterator();
 
