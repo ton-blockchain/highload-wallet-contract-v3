@@ -94,11 +94,11 @@ export class HighloadWalletV3 implements Contract {
             messageCell = messageBuilder.endCell();
         }
         const messageInner = beginCell()
+                            .storeUint(opts.subwalletId, 32)
                             .storeRef(messageCell)
                             .storeUint(opts.mode, 8)
                             .storeUint(Number(opts.query_id), 24)
                             .storeUint(opts.createdAt, TIMESTAMP_SIZE)
-                            .storeUint(opts.subwalletId, 32)
                             .storeUint(opts.timeout, TIMEOUT_SIZE)
                             .endCell();
 

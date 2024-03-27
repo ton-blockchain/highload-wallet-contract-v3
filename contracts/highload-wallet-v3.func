@@ -83,12 +83,12 @@ const int BIT_NUMBER_SIZE = 10; ;; 2^10 = 1024
     throw_unless(error::invalid_signature, check_signature(msg_inner_hash, signature, public_key));
 
     slice msg_inner_slice = msg_inner.begin_parse();
+    int _subwallet_id = msg_inner_slice~load_uint(SUBWALLET_ID_SIZE);
     cell message_to_send = msg_inner_slice~load_ref();
     int send_mode = msg_inner_slice~load_uint(8);
     int shift = msg_inner_slice~load_uint(KEY_SIZE);
     int bit_number = msg_inner_slice~load_uint(BIT_NUMBER_SIZE);
     int created_at = msg_inner_slice~load_uint(TIMESTAMP_SIZE);
-    int _subwallet_id = msg_inner_slice~load_uint(SUBWALLET_ID_SIZE);
     int _timeout  = msg_inner_slice~load_uint(TIMEOUT_SIZE);
     msg_inner_slice.end_parse();
 
