@@ -407,15 +407,15 @@ describe('HighloadWalletV3', () => {
         // Artificial situation where both dict's get looked up
         const message = highloadWalletV3.createInternalTransfer({actions: [], queryId: 0, value: 0n})
         const newQueries = Dictionary.empty(Dictionary.Keys.Uint(13), Dictionary.Values.Cell());
-        const padding = new BitString(Buffer.alloc(128, 0), 0, 1023 - 14);
+        const padding = new BitString(Buffer.alloc(128, 0), 0, 1023 - 13);
 
         for(let i = 0; i < maxKeyCount; i++) {
-            newQueries.set(i, beginCell().storeUint(i, 14).storeBits(padding).endCell());
+            newQueries.set(i, beginCell().storeUint(i, 13).storeBits(padding).endCell());
         }
 
-        const oldQueries = Dictionary.empty(Dictionary.Keys.Uint(14), Dictionary.Values.Cell());
+        const oldQueries = Dictionary.empty(Dictionary.Keys.Uint(13), Dictionary.Values.Cell());
         for(let i = 0; i < maxKeyCount; i++) {
-            oldQueries.set(i, beginCell().storeBits(padding).storeUint(i, 14).endCell());
+            oldQueries.set(i, beginCell().storeBits(padding).storeUint(i, 13).endCell());
         }
 
         const smc = await blockchain.getContract(highloadWalletV3.address);
