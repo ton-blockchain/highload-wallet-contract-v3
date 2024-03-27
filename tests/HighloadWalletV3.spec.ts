@@ -403,14 +403,19 @@ describe('HighloadWalletV3', () => {
         expect(await highloadWalletV3.getLastCleaned()).toEqual(testResult2.transactions[0].now);
     });
     it('queries dictionary with max keys should fit in credit limit', async () => {
-        // 2 ** 14 - 1 = 16383 keys
+        // 2 ** 14 = 16384 keys
         // Artificial situation where both dict's get looked up
         const message = highloadWalletV3.createInternalTransfer({actions: [], queryId: 0, value: 0n})
         const newQueries = Dictionary.empty(Dictionary.Keys.Uint(14), Dictionary.Values.Cell());
         const padding = new BitString(Buffer.alloc(128, 0), 0, 1023 - 14);
 
-        for(let i = 0; i < 16383; i++) {
+        for(let i = 0; i < 16384; i++) {
             newQueries.set(i, beginCell().storeUint(i, 14).storeBits(padding).endCell());
+        }
+
+        const oldQueries = Dictionary.empty(Dictionary.Keys.Uint(14), Dictionary.Values.Cell());
+        for(let i = 0; i < 16384; i++) {
+            oldQueries.set(i, beginCell().storeBits(padding).storeUint(i, 14).endCell());
         }
 
         const smc = await blockchain.getContract(highloadWalletV3.address);
@@ -421,9 +426,9 @@ describe('HighloadWalletV3', () => {
 
         const newState = beginCell()
                           .storeBits(head)
-                          .storeDict(null)
+                          .storeDict(oldQueries)
                           .storeDict(newQueries)
-                          .storeUint(2000, TIMESTAMP_SIZE) // Make sure both dicts pass last_cleaned check
+                          .storeUint(blockchain.now!, TIMESTAMP_SIZE) // DO NOT CLEAN
                           .storeBits(tail)
                         .endCell();
 
@@ -435,8 +440,8 @@ describe('HighloadWalletV3', () => {
             workchain: 0
         }));
 
-        const rndShift   = getRandomInt(0, 16383);
-        const rndBitNum  = getRandomInt(0, 1022);
+        const rndShift   = 16383;
+        const rndBitNum  = 700;
 
         const queryId = (rndShift << 10) + rndBitNum;
         await expect(highloadWalletV3.sendExternalMessage(
