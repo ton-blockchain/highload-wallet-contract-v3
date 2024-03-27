@@ -210,8 +210,8 @@ export class HighloadWalletV3 implements Contract {
         return res.readNumber();
     }
 
-    async getProcessed(provider: ContractProvider, queryId: number | QueryIterator): Promise<boolean> {
-        const res = (await provider.get('processed?', [{'type': 'int', 'value': BigInt(Number(queryId))}])).stack;
+    async getProcessed(provider: ContractProvider, queryId: number | QueryIterator, needClean = true): Promise<boolean> {
+        const res = (await provider.get('processed?', [{'type': 'int', 'value': BigInt(Number(queryId))}, {'type': 'int', 'value': needClean ? -1n : 0n}])).stack;
         return res.readBoolean();
     }
 }

@@ -201,7 +201,7 @@ int get_timeout() method_id {
     return data_slice.preload_uint(TIMEOUT_SIZE);
 }
 
-int processed?(int query_id) method_id {
+int processed?(int query_id, int need_clean) method_id {
     int shift = query_id >> BIT_NUMBER_SIZE;
     int bit_number = query_id & CELL_BITS_SIZE;
 
@@ -213,12 +213,14 @@ int processed?(int query_id) method_id {
     int timeout = data_slice~load_uint(TIMEOUT_SIZE);
     data_slice.end_parse();
 
-    if (last_clean_time < (now() - timeout)) {
-        (old_queries, queries) = (queries, null());
-        if (last_clean_time < (now() - (timeout * 2))) {
-            old_queries = null();
+    if (need_clean) {
+        if (last_clean_time < (now() - timeout)) {
+            (old_queries, queries) = (queries, null());
+            if (last_clean_time < (now() - (timeout * 2))) {
+                old_queries = null();
+            }
+            last_clean_time = now();
         }
-        last_clean_time = now();
     }
 
     (cell value, int found) = old_queries.udict_get_ref?(KEY_SIZE, shift);
