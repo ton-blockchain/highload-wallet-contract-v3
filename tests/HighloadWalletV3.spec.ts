@@ -25,7 +25,7 @@ describe('HighloadWalletV3', () => {
 
     beforeAll(async () => {
         keyPair = keyPairFromSeed(await getSecureRandomBytes(32));
-        code    = await compile('highloadWalletV3');
+        code    = await compile('HighloadWalletV3');
 
         shouldRejectWith = async (p, code) => {
             try {
