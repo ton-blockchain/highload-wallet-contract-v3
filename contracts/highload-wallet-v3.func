@@ -16,7 +16,7 @@ const int error::already_executed = 36;
 const int error::invalid_message_to_send = 37;
 const int error::invalid_timeout = 38;
 
-const int KEY_SIZE = 14;
+const int KEY_SIZE = 13;
 const int SIGNATURE_SIZE = 512;
 const int PUBLIC_KEY_SIZE = 256;
 const int SUBWALLET_ID_SIZE = 32;

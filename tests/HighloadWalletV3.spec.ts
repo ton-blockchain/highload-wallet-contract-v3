@@ -8,7 +8,7 @@ import {SUBWALLET_ID, Errors, DEFAULT_TIMEOUT} from "./imports/const";
 import { compile } from '@ton/blueprint';
 import { getRandomInt } from '../utils';
 import { findTransactionRequired, randomAddress } from '@ton/test-utils';
-import { QueryIterator, maxQueryId } from '../wrappers/QueryIterator';
+import { QueryIterator, maxKeyCount, maxShift } from '../wrappers/QueryIterator';
 import { MsgGenerator } from '../wrappers/MsgGenerator';
 
 
@@ -103,7 +103,7 @@ describe('HighloadWalletV3', () => {
     it('should pass check sign', async () => {
         try {
             const message = highloadWalletV3.createInternalTransfer({actions: [], queryId: 0, value: 0n})
-            const rndShift   = getRandomInt(0, 16383);
+            const rndShift   = getRandomInt(0, maxShift);
             const rndBitNum  = getRandomInt(0, 1022);
 
             const queryId = (rndShift << 10) + rndBitNum;
@@ -142,7 +142,7 @@ describe('HighloadWalletV3', () => {
             badKey = randomBytes(64);
         } while(badKey.equals(keyPair.secretKey));
 
-        const rndShift   = getRandomInt(0, 16383);
+        const rndShift   = getRandomInt(0, maxShift);
         const rndBitNum  = getRandomInt(0, 1022);
 
         const queryId = (rndShift << 10) + rndBitNum;
@@ -167,7 +167,7 @@ describe('HighloadWalletV3', () => {
         const curSubwallet= await highloadWalletV3.getSubwalletId();
         expect(curSubwallet).toEqual(SUBWALLET_ID);
 
-        const rndShift   = getRandomInt(0, 16383);
+        const rndShift   = getRandomInt(0, maxShift);
         const rndBitNum  = getRandomInt(0, 1022);
 
         const queryId = (rndShift << 10) + rndBitNum;
@@ -192,7 +192,7 @@ describe('HighloadWalletV3', () => {
 
         const curTimeout = await highloadWalletV3.getTimeout();
 
-        const rndShift   = getRandomInt(0, 16383);
+        const rndShift   = getRandomInt(0, maxShift);
         const rndBitNum  = getRandomInt(0, 1022);
 
         const queryId = (rndShift << 10) + rndBitNum;
@@ -214,7 +214,7 @@ describe('HighloadWalletV3', () => {
     it('should fail check query_id in actual queries', async () => {
         const message = highloadWalletV3.createInternalTransfer({actions: [], queryId: 0, value: 0n})
 
-        const rndShift   = getRandomInt(0, 16383);
+        const rndShift   = getRandomInt(0, maxShift);
         const rndBitNum  = getRandomInt(0, 1022);
 
         const queryId = (rndShift << 10) + rndBitNum;
@@ -251,7 +251,7 @@ describe('HighloadWalletV3', () => {
     });
     it('should work with max bitNumber = 1022', async () => {
         // bitNumber is a low part of 24 bit query_id
-        const shift = getRandomInt(0, 16383);
+        const shift = getRandomInt(0, maxShift);
         const queryId = (shift << 10) + 1022;
         await expect(highloadWalletV3.sendExternalMessage(
             keyPair.secretKey,
@@ -270,7 +270,7 @@ describe('HighloadWalletV3', () => {
 
     it('should reject bitNumber = 1023', async () => {
         // bitNumber is a low part of 24 bit query_id
-        const shift = getRandomInt(0, 16383);
+        const shift = getRandomInt(0, maxShift);
         const queryId = (shift << 10) + 1023;
 
         await expect(highloadWalletV3.sendExternalMessage(
@@ -287,10 +287,10 @@ describe('HighloadWalletV3', () => {
                 timeout: DEFAULT_TIMEOUT
             })).rejects.toThrow(EmulationError);
     });
-    it('should work with max shift = 16383', async () => {
+    it('should work with max shift = maxShift', async () => {
         // Shift is a high part of 24 bit query_id
         const rndBitNum = getRandomInt(0, 1022);
-        const qIter = new QueryIterator(16383, rndBitNum);
+        const qIter = new QueryIterator(maxShift, rndBitNum);
         await expect(highloadWalletV3.sendExternalMessage(
             keyPair.secretKey,
             {
@@ -309,7 +309,7 @@ describe('HighloadWalletV3', () => {
     it('should fail check query_id in old queries', async () => {
         const message = highloadWalletV3.createInternalTransfer({actions: [], queryId: 0, value: 0n})
 
-        const rndShift   = getRandomInt(0, 16383);
+        const rndShift   = getRandomInt(0, maxShift);
         const rndBitNum  = getRandomInt(0, 1022);
 
         const queryId = (rndShift << 10) + rndBitNum;
@@ -350,7 +350,7 @@ describe('HighloadWalletV3', () => {
     it('should be cleared queries hashmaps', async () => {
         const message = highloadWalletV3.createInternalTransfer({actions: [], queryId: 0, value: 0n})
 
-        const rndShift   = getRandomInt(0, 16383);
+        const rndShift   = getRandomInt(0, maxShift);
         const rndBitNum  = getRandomInt(0, 1022);
 
         const queryId = (rndShift << 10) + rndBitNum;
@@ -377,7 +377,7 @@ describe('HighloadWalletV3', () => {
         // get_is_processed should account for query expiery
         expect(await highloadWalletV3.getProcessed(queryId)).toBe(false);
 
-        const newShift   = getRandomInt(0, 16383);
+        const newShift   = getRandomInt(0, maxShift);
         const newBitNum  = getRandomInt(0, 1022);
 
         const newQueryId = (newShift << 10) + newBitNum;
@@ -406,16 +406,16 @@ describe('HighloadWalletV3', () => {
         // 2 ** 14 = 16384 keys
         // Artificial situation where both dict's get looked up
         const message = highloadWalletV3.createInternalTransfer({actions: [], queryId: 0, value: 0n})
-        const newQueries = Dictionary.empty(Dictionary.Keys.Uint(14), Dictionary.Values.Cell());
-        const padding = new BitString(Buffer.alloc(128, 0), 0, 1023 - 14);
+        const newQueries = Dictionary.empty(Dictionary.Keys.Uint(13), Dictionary.Values.Cell());
+        const padding = new BitString(Buffer.alloc(128, 0), 0, 1023 - 13);
 
-        for(let i = 0; i < 16384; i++) {
-            newQueries.set(i, beginCell().storeUint(i, 14).storeBits(padding).endCell());
+        for(let i = 0; i < maxKeyCount; i++) {
+            newQueries.set(i, beginCell().storeUint(i, 13).storeBits(padding).endCell());
         }
 
-        const oldQueries = Dictionary.empty(Dictionary.Keys.Uint(14), Dictionary.Values.Cell());
-        for(let i = 0; i < 16384; i++) {
-            oldQueries.set(i, beginCell().storeBits(padding).storeUint(i, 14).endCell());
+        const oldQueries = Dictionary.empty(Dictionary.Keys.Uint(13), Dictionary.Values.Cell());
+        for(let i = 0; i < maxKeyCount; i++) {
+            oldQueries.set(i, beginCell().storeBits(padding).storeUint(i, 13).endCell());
         }
 
         const smc = await blockchain.getContract(highloadWalletV3.address);
@@ -440,11 +440,11 @@ describe('HighloadWalletV3', () => {
             workchain: 0
         }));
 
-        const rndShift   = 16383;
+        const rndShift   = maxShift;
         const rndBitNum  = 700;
 
         const queryId = (rndShift << 10) + rndBitNum;
-        await expect(highloadWalletV3.sendExternalMessage(
+        const res     = highloadWalletV3.sendExternalMessage(
             keyPair.secretKey,
             {
                 createdAt: 1000,
@@ -453,13 +453,19 @@ describe('HighloadWalletV3', () => {
                 mode: 128,
                 subwalletId: SUBWALLET_ID,
                 timeout: DEFAULT_TIMEOUT
-            })).resolves.not.toThrow();
+            });
+        await expect(res).resolves.not.toThrow();
+        expect((await res).transactions).toHaveTransaction({
+            on: highloadWalletV3.address,
+            aborted: false,
+            outMessagesCount: 1
+        });
     });
     it('should send internal message', async () => {
         const testAddr   = randomAddress(0);
         const testBody   = beginCell().storeUint(getRandomInt(0, 1000000), 32).endCell();
 
-        const rndShift   = getRandomInt(0, 16383);
+        const rndShift   = getRandomInt(0, maxShift);
         const rndBitNum  = 1022;
 
         const queryId = (rndShift << 10) + rndBitNum;
@@ -518,7 +524,7 @@ describe('HighloadWalletV3', () => {
         const testBody   = beginCell().storeUint(getRandomInt(0, 1000000), 32).endCell();
         const testAddr   = randomAddress();
 
-        const rndShift   = getRandomInt(0, 16383);
+        const rndShift   = getRandomInt(0, maxShift);
         const rndBitNum  = getRandomInt(0, 1022);
 
         const queryId = (rndShift << 10) + rndBitNum;
@@ -565,7 +571,7 @@ describe('HighloadWalletV3', () => {
     it('should send external message', async () => {
         const testBody   = beginCell().storeUint(getRandomInt(0, 1000000), 32).endCell();
 
-        const rndShift   = getRandomInt(0, 16383);
+        const rndShift   = getRandomInt(0, maxShift);
         const rndBitNum  = getRandomInt(0, 1022);
 
         const queryId = (rndShift << 10) + rndBitNum;
@@ -674,7 +680,7 @@ describe('HighloadWalletV3', () => {
         expect(await highloadWalletV3.getProcessed(Number(curQuery))).toBe(true);
     });
     it('should ignore internal transfer from address different from self', async () => {
-        const rndShift   = getRandomInt(0, 16383);
+        const rndShift   = getRandomInt(0, maxShift);
         const rndBitNum  = getRandomInt(0, 1022);
 
         const queryId    = (rndShift << 10) + rndBitNum;
@@ -720,7 +726,7 @@ describe('HighloadWalletV3', () => {
     });
     it('should ignore bounced messages', async () => {
 
-        const rndShift   = getRandomInt(0, 16383);
+        const rndShift   = getRandomInt(0, maxShift);
         const rndBitNum  = getRandomInt(0, 1022);
 
         const queryId    = new QueryIterator(rndShift, rndBitNum);

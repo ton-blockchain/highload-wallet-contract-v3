@@ -97,7 +97,7 @@ export class HighloadWalletV3 implements Contract {
                             .storeUint(opts.subwalletId, 32)
                             .storeRef(messageCell)
                             .storeUint(opts.mode, 8)
-                            .storeUint(Number(opts.query_id), 24)
+                            .storeUint(Number(opts.query_id), 23)
                             .storeUint(opts.createdAt, TIMESTAMP_SIZE)
                             .storeUint(opts.timeout, TIMEOUT_SIZE)
                             .endCell();
