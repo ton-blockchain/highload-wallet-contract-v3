@@ -778,7 +778,7 @@ describe('HighloadWalletV3', () => {
     it('should ignore invalid message in payload', async () => {
         const testAddr     = randomAddress(0);
         const badGenerator = new MsgGenerator(0);
-        const queryIter    = new HighloadQueryId();
+        let queryIter    = new HighloadQueryId();
 
         for(let badMsg of badGenerator.generateBadMsg()) {
             const res = await highloadWalletV3.sendExternalMessage(
@@ -798,7 +798,7 @@ describe('HighloadWalletV3', () => {
             });
             // Expect query to be processed
             expect(await highloadWalletV3.getProcessed(queryIter)).toBe(true);
-            queryIter.increase();
+            queryIter = queryIter.getNext();
         }
     });
     it('timeout replay attack', async () => {
