@@ -11,3 +11,8 @@ export abstract class Errors {
     static invalid_creation_time = 35;
     static already_executed = 36;
 }
+
+export const maxKeyCount   = (1 << 13); //That is max key count not max key value
+export const maxShift      = maxKeyCount - 1;
+export const maxQueryCount = maxKeyCount * 1023; // Therefore value count
+export const maxQueryId    = (maxShift << 10) + 1022;
