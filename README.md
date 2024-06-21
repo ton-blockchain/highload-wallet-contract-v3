@@ -18,4 +18,10 @@ Test:
 
 `npm run test`
 
+Useful examples can be found below:
+ * [Withdrawal](https://github.com/toncenter/examples/blob/main/withdrawals-highload.js)
+ * [Jetton withdrawal](https://github.com/toncenter/examples/blob/main/withdrawals-jettons.js)
+ * [Batch withdrawal](https://github.com/toncenter/examples/blob/main/withdrawals-highload-batch.js)
+ * [Jetton batch withdrawal](https://github.com/toncenter/examples/blob/main/withdrawals-jettons-highload-batch.js)
+
 Author: [Andrew Gutarev](https://github.com/pyAndr3w)
