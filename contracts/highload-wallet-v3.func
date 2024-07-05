@@ -34,7 +34,7 @@ const int BIT_NUMBER_SIZE = 10; ;; 2^10 = 1024
 
     slice in_msg_full_slice = in_msg_full.begin_parse();
     int msg_flags = in_msg_full_slice~load_msg_flags();
-    if (is_bounced(msg_flags)) {
+    if (msg_flags & 1) { ;; is bounced
         return ();
     }
 
@@ -154,7 +154,7 @@ const int BIT_NUMBER_SIZE = 10; ;; 2^10 = 1024
 
     throw_if(error::invalid_message_to_send, message_slice~load_uint(1)); ;; int_msg_info$0
     int msg_flags = message_slice~load_uint(3); ;; ihr_disabled:Bool bounce:Bool bounced:Bool
-    if (is_bounced(msg_flags)) {
+    if (msg_flags & 1) { ;; is bounced
         return ();
     }
     slice message_source_adrress = message_slice~load_msg_addr(); ;; src
