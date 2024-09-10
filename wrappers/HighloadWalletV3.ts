@@ -183,7 +183,7 @@ export class HighloadWalletV3 implements Contract {
             const batchValue = requiredBalance(batch);
             batch.push({
                 type: 'sendMsg',
-                mode: value > 0n ? SendMode.PAY_GAS_SEPARATELY : SendMode.CARRY_ALL_REMAINING_BALANCE,
+                mode: SendMode.PAY_GAS_SEPARATELY,
                 outMsg: this.packActions(messages.slice(253), value - batchValue, query_id)
             });
         } else {
