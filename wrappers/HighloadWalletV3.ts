@@ -41,6 +41,16 @@ export function highloadWalletV3ConfigToCell(config: HighloadWalletV3Config): Ce
         .endCell();
 }
 
+function requiredBalance(messages: OutActionSendMsg[]) {
+    return messages.reduce((accum, cur) => {
+        let msgVal = 0n;
+        if(cur.outMsg.info.type == 'internal') {
+            msgVal = accum + cur.outMsg.info.value.coins;
+        }
+        return msgVal;
+    }, 0n);
+}
+
 export class HighloadWalletV3 implements Contract {
 
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {
@@ -106,13 +116,15 @@ export class HighloadWalletV3 implements Contract {
         );
     }
 
-    async sendBatch(provider: ContractProvider, secretKey: Buffer, messages: OutActionSendMsg[], subwallet: number, query_id: HighloadQueryId, timeout: number, createdAt?: number, value: bigint = 0n) {
+    async sendBatch(provider: ContractProvider, secretKey: Buffer, messages: OutActionSendMsg[], subwallet: number, query_id: HighloadQueryId, timeout: number, createdAt?: number) {
         if (createdAt == undefined) {
             createdAt = Math.floor(Date.now() / 1000);
         }
+        const value = requiredBalance(messages);
+
         return await this.sendExternalMessage(provider, secretKey, {
             message: this.packActions(messages, value, query_id),
-            mode: value > 0n ? SendMode.PAY_GAS_SEPARATELY : SendMode.CARRY_ALL_REMAINING_BALANCE,
+            mode: SendMode.PAY_GAS_SEPARATELY,
             query_id: query_id,
             createdAt: createdAt,
             subwalletId: subwallet,
@@ -164,14 +176,15 @@ export class HighloadWalletV3 implements Contract {
             */
     }
 
-    packActions(messages: OutAction[], value: bigint = toNano('1'), query_id: HighloadQueryId) {
-        let batch: OutAction[];
+    packActions(messages: OutActionSendMsg[], value: bigint = toNano('1'), query_id: HighloadQueryId) {
+        let batch: OutActionSendMsg[];
         if (messages.length > 254) {
             batch = messages.slice(0, 253);
+            const batchValue = requiredBalance(batch);
             batch.push({
                 type: 'sendMsg',
                 mode: value > 0n ? SendMode.PAY_GAS_SEPARATELY : SendMode.CARRY_ALL_REMAINING_BALANCE,
-                outMsg: this.packActions(messages.slice(253), value, query_id)
+                outMsg: this.packActions(messages.slice(253), value - batchValue, query_id)
             });
         } else {
             batch = messages;
