@@ -1,5 +1,5 @@
-storage$_ public_key:bits256 subwallet_id:uint32 old_queries:(HashmapE 14 ^Cell)
-          queries:(HashmapE 14 ^Cell) last_clean_time:uint64 timeout:uint22
+storage$_ public_key:bits256 subwallet_id:uint32 old_queries:(HashmapE 13 ^Cell)
+          queries:(HashmapE 13 ^Cell) last_clean_time:uint64 timeout:uint22
           = Storage;
 
 _ shift:uint13 bit_number:(## 10) { bit_number >= 0 } { bit_number < 1023 } = QueryId;
