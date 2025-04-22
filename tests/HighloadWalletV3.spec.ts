@@ -405,7 +405,7 @@ describe('HighloadWalletV3', () => {
         expect(await highloadWalletV3.getLastCleaned()).toEqual(testResult2.transactions[0].now);
     });
     it('queries dictionary with max keys should fit in credit limit', async () => {
-        // 2 ** 14 = 16384 keys
+        // 2 ** 13 = 8192 keys
         // Artificial situation where both dict's get looked up
         const message = highloadWalletV3.createInternalTransfer({actions: [], queryId: new HighloadQueryId(), value: 0n})
         const newQueries = Dictionary.empty(Dictionary.Keys.Uint(13), Dictionary.Values.Cell());
