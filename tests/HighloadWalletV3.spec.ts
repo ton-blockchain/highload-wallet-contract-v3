@@ -648,6 +648,7 @@ describe('HighloadWalletV3', () => {
     });
     it('should be able to go beyond 255 messages with chained internal_transfer', async () => {
         const msgCount  = getRandomInt(256, 507);
+        const totalValue = toNano('0.015') * BigInt(msgCount);
         const msgs : OutActionSendMsg[] = new Array(msgCount);
         const curQuery = new HighloadQueryId();
 
@@ -667,10 +668,12 @@ describe('HighloadWalletV3', () => {
 
         expect(res.transactions).toHaveTransaction({
             on: highloadWalletV3.address,
+            value: totalValue,
             outMessagesCount: 254
         });
         expect(res.transactions).toHaveTransaction({
             on: highloadWalletV3.address,
+            value: totalValue - toNano('0.015') * 253n,
             outMessagesCount: msgCount - 253
         });
         for(let i = 0; i < msgCount; i++) {
