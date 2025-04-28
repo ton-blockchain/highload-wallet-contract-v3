@@ -30,5 +30,5 @@ Author: [Andrew Gutarev](https://github.com/pyAndr3w)
 ## Security
 
 The highload-wallet-contract-v3 smart contract has been audited by:
-- TonTech: [Audit Report](./audits/HighloadWallet_TonTech_Audit_Report.pdf)
+- TonTech: [Audit Report](./audits/highload_wallet_tontech_audit_report.pdf)
 
