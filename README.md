@@ -25,3 +25,8 @@ Useful examples can be found below:
  * [Jetton batch withdrawal](https://github.com/toncenter/examples/blob/main/withdrawals-jettons-highload-batch.js)
 
 Author: [Andrew Gutarev](https://github.com/pyAndr3w)
+
+## Security
+
+The highload-wallet-contract-v3 smart contract has been audited by:
+- TonTech: [Audit Report](./audits/ton-blockchain_highload-wallet-contract-v3_2025-04-24.pdf)
